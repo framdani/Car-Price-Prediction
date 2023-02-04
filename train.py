@@ -39,6 +39,15 @@ def read_dataset(path):
 def estimate_price(milleage, theta0, theta1):
     return (theta0 + theta1 * milleage)
 
+def cost_function(X, y, theta0, theta1):
+    m = len(X)
+    sqrd_error = 0
+    for i in range(m):
+        y_pred = theta0 + theta1 * X[i]
+        sqrd_error += (y_pred - y[i]) ** 2
+    cost = 1/ (2 * m) * sqrd_error
+    return cost
+
 def gradient_descent(milleages, prices, numIterations, learningRate):
     """
     Performs linear regression on a given dataset.
@@ -64,6 +73,8 @@ def gradient_descent(milleages, prices, numIterations, learningRate):
         # Initialize temporary values of theta0 and theta1
         tmp_theta0 = 0
         tmp_theta1 = 0
+
+        costs = []
         # Loop through the dataset
         for i in range(m):
             # print(prices[i], milleages[i])
@@ -78,8 +89,9 @@ def gradient_descent(milleages, prices, numIterations, learningRate):
         # Update values of theta0 and theta1 based on temporary values
         theta0 = theta0 - learningRate * (1/m) * tmp_theta0
         theta1 = theta1 - learningRate * (1/m) * tmp_theta1
+        costs.append(cost_function(milleages,prices, theta0, theta1))
     # print(theta0 ,theta1)
-    return theta0, theta1
+    return theta0, theta1, costs
 
 def normalize_features(milleages):
     # mean_milleages = sum(milleages)/len(milleages)
@@ -101,5 +113,9 @@ if __name__ == '__main__':
     learningRate  = 0.01
     numIterations = 1000
     X_norm, min_milleage, max_milleage = normalize_features(milleages)
-    theta0, theta1 = gradient_descent(X_norm, prices, numIterations, learningRate)
+    theta0, theta1, costs= gradient_descent(X_norm, prices, numIterations, learningRate)
     np.savez("min_max_theta.npz", min=min_milleage, max = max_milleage, theta0=theta0, theta1=theta1)
+    print(costs)
+
+
+# 

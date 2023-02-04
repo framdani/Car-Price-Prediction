@@ -1,5 +1,6 @@
 import csv
 import sys
+import numpy as np
 
 def read_dataset(path):
     """
@@ -8,9 +9,12 @@ def read_dataset(path):
         path(str): The file path of the dataset.
 
     Returns:
-        None
+        milleages(list): the list of milleages.
+        prices(list): the list of prices.
     """
     try:
+        milleages = []
+        prices = []
         with open(path, "r") as file:
             reader = csv.reader(file)
             header_row = next(reader)
@@ -30,14 +34,17 @@ def read_dataset(path):
         sys.exit()
     
     print("Dataset read successfully from", path)
+    return milleages, prices
 
 def estimate_price(milleage, theta0, theta1):
     return (theta0 + theta1 * milleage)
 
-def linear_regression(numIterations, learningRate):
+def gradient_descent(milleages, prices, numIterations, learningRate):
     """
     Performs linear regression on a given dataset.
     Parameters:
+        milleages(list) : the list of milleages.
+        prices(list) : the list of prices.
         numIterations(int) : the number of iterations the gradient descent algo will run for.
         learningRate(float) : number of steps the gradient descent algo will take.
     
@@ -50,15 +57,16 @@ def linear_regression(numIterations, learningRate):
     # Initial values of theta0 and theta1
     theta0 = 0
     theta1 = 0
+    #X_norm = normalize_features(milleages)
 
-    # performing Geadient descent
+    # performing Gradient descent
     for j in range(numIterations):
-        # Initialize tmporary values of theta0 and theta1
+        # Initialize temporary values of theta0 and theta1
         tmp_theta0 = 0
         tmp_theta1 = 0
         # Loop through the dataset
         for i in range(m):
-            print(prices[i], milleages[i])
+            # print(prices[i], milleages[i])
             # Estimate the price based on the current values of theta0 and theta1
             estimatedPrice = estimate_price(milleages[i], theta0, theta1)
             print("estimadPrice",estimatedPrice)
@@ -73,14 +81,25 @@ def linear_regression(numIterations, learningRate):
     # print(theta0 ,theta1)
     return theta0, theta1
 
+def normalize_features(milleages):
+    # mean_milleages = sum(milleages)/len(milleages)
+    # std_millages = (sum((x - mean_milleages) ** 2 for x in milleages)/ len(milleages))**0.5
+    # milleages_normalized = [(x - mean_milleages)/std_millages for x in milleages]
+    # return milleages_normalized, mean_milleages, std_millages
+    min_milleage = min(milleages)
+    max_milleage = max(milleages)
+    range = max_milleage - min_milleage
+    milleages_normalized = [(x - min_milleage) / range for x in milleages] 
+    return milleages_normalized, min_milleage, max_milleage
+
 if __name__ == '__main__':
-    milleages = []
-    prices = []
     if len(sys.argv) != 2:
         print("Error: Please provide the path to the dataset file.")
         sys.exit()
     file_path = sys.argv[1]
-    read_dataset(file_path)
-    learningRate = 0.0001
-    numIterations= 10
-    print(linear_regression(numIterations, learningRate))
+    milleages, prices = read_dataset(file_path)
+    learningRate  = 0.01
+    numIterations = 1000
+    X_norm, min_milleage, max_milleage = normalize_features(milleages)
+    theta0, theta1 = gradient_descent(X_norm, prices, numIterations, learningRate)
+    np.savez("min_max_theta.npz", min=min_milleage, max = max_milleage, theta0=theta0, theta1=theta1)

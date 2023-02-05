@@ -108,6 +108,6 @@ if __name__ == '__main__':
     X_norm, min_mileage, max_mileage = feature_scaling(mileages)
     Y_norm, min_price, max_price = feature_scaling(prices)
     theta0, theta1, costs= gradient_descent(X_norm, Y_norm, numIterations, learningRate)
-    np.savez("min_max_theta.npz", min=min_mileage, max = max_mileage, theta0=theta0, theta1=theta1)
+    np.savez("min_max_theta.npz", min_m=min_mileage, max_m = max_mileage, min_p = min_price, max_p=max_price,theta0=theta0, theta1=theta1)
 
     print(costs[-1]) # The min cost

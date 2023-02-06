@@ -1,8 +1,10 @@
 import csv
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
+import argparse
 
-def load_dataset(path='data.csv'):
+def load_dataset(path):
     """
     Reads the dataset from a given file path.
 
@@ -14,6 +16,7 @@ def load_dataset(path='data.csv'):
         milleages(list): the list of milleages.
         prices(list): the list of prices.
     """
+    print("Load dataset...")
     try:
         milleages = []
         prices = []
@@ -61,6 +64,7 @@ def gradient_descent(milleages, prices, numIterations, learningRate):
         tuple : Estimated values of theta0 and theta1, list of cost value at each iteration.
 
     """
+    print("Training...")
     # Number of elements in the dataset
     m = len(milleages) # or len(prices)
     # Initial values of theta0 and theta1
@@ -95,19 +99,43 @@ def feature_scaling(data):
     normalized_data = [(value - Min) / scaling_range for value in data] 
     return normalized_data, Min, Max
 
+def plotting(X_norm, Y_norm, costs):
+    # Plot the data distriburion
+    plt.scatter(X_norm, Y_norm)
+    # Plot the fit line
+    x = np.linspace(min(X_norm), max(Y_norm), 100)
+    y = theta0 + x * theta1
+    plt.plot(x, y, color ='green')
+    #Add labels and title
+    plt.xlabel('Mileage')
+    plt.ylabel('Prices')
+    plt.title("Linear regression fit line")
+    plt.show()
+
+    plt.plot(costs)
+    plt.xlabel('Iteration')
+    plt.ylabel("Loss")
+    plt.title("Loss Over iterations")
+    plt.show()
+
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--path', type=str, default='data.csv',help='path to the data file')
+    parser.add_argument('--display', type=bool, default=False, help="Flag to display the plots or not")
+    args = parser.parse_args()
+    data_path = args.path
+
     # Load dataset
-    if len(sys.argv) == 2:
-        mileages, prices = load_dataset(sys.argv[1])
-    else:
-        mileages, prices = load_dataset()
-    # Define hyperparameters
+    mileages, prices = load_dataset(data_path)
     learningRate  = 0.0001
-    numIterations = 1000000
+    numIterations = 1000000 #1e6
+
     # Min-Max normalization
     X_norm, min_mileage, max_mileage = feature_scaling(mileages)
     Y_norm, min_price, max_price = feature_scaling(prices)
     theta0, theta1, costs= gradient_descent(X_norm, Y_norm, numIterations, learningRate)
     np.savez("min_max_theta.npz", min_m=min_mileage, max_m = max_mileage, min_p = min_price, max_p=max_price,theta0=theta0, theta1=theta1)
-
-    print(costs[-1]) # The min cost
+ 
+    if args.display:
+        plotting(X_norm, Y_norm, costs)

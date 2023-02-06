@@ -100,22 +100,22 @@ def feature_scaling(data):
     return normalized_data, Min, Max
 
 def plotting(X_norm, Y_norm, costs):
+    fig, ax = plt.subplots(1, 2, figsize=(15, 5))
     # Plot the data distriburion
-    plt.scatter(X_norm, Y_norm)
+    ax[0].scatter(X_norm, Y_norm)
     # Plot the fit line
     x = np.linspace(min(X_norm), max(Y_norm), 100)
     y = theta0 + x * theta1
-    plt.plot(x, y, color ='green')
+    ax[0].plot(x, y, color ='green')
     #Add labels and title
-    plt.xlabel('Mileage')
-    plt.ylabel('Prices')
-    plt.title("Linear regression fit line")
-    plt.show()
+    ax[0].set_xlabel('Mileage')
+    ax[0].set_ylabel('Prices')
+    ax[0].set_title("Linear regression fit line")
 
-    plt.plot(costs)
-    plt.xlabel('Iteration')
-    plt.ylabel("Loss")
-    plt.title("Loss Over iterations")
+    ax[1].plot(costs)
+    ax[1].set_xlabel('Iteration')
+    ax[1].set_ylabel("Loss")
+    ax[1].set_title("Loss Over iterations")
     plt.show()
 
 if __name__ == '__main__':
